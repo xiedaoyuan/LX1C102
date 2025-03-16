@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "oled96.h": "c",
+        "ls1x_latimer.h": "c",
+        "ls1x_gpio.h": "c",
+        "config.h": "c",
+        "ls1x.h": "c",
+        "ls1c103_pmu.h": "c",
+        "ls1x_common.h": "c",
+        "ls1c102_ptimer.h": "c",
+        "ls1x_uart.h": "c",
+        "queue.h": "c"
+    }
+}

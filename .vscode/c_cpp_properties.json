@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/drivers/include",
+                "${workspaceFolder}/drivers/private/ls1c102",
+                "${workspaceFolder}/drivers/public",
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/system"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ]
+        }
+    ],
+    "version": 4
+}
