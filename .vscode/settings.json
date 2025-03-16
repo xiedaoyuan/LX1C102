@@ -9,6 +9,10 @@
         "ls1x_common.h": "c",
         "ls1c102_ptimer.h": "c",
         "ls1x_uart.h": "c",
-        "queue.h": "c"
+        "queue.h": "c",
+        "dht11.h": "c",
+        "ls1x_spi.h": "c",
+        "ls1c102_adc.h": "c",
+        "led.h": "c"
     }
 }
