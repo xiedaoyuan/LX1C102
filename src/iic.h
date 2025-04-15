@@ -7,8 +7,8 @@
 #include "ls1x_latimer.h"
 
  
-#define I2C_Soft_SCL GPIO_PIN_57
-#define I2C_Soft_SDA GPIO_PIN_1
+#define I2C_Soft_SCL GPIO_PIN_4
+#define I2C_Soft_SDA GPIO_PIN_5
 
 #define I2C_SCL_LOW     gpio_write_pin(I2C_Soft_SCL, 0);
 #define I2C_SCL_HIGH 	gpio_write_pin(I2C_Soft_SCL, 1);

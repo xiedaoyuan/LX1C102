@@ -1,180 +1,215 @@
-#include "ls1x.h"
-#include "ls1x_gpio.h"
-#include "ls1x_wdg.h"
-#include "ls1x_common.h"
-#include "ls1x_exti.h"
-#include "ls1c102_interrupt.h"
-#include "ls1c102_touch.h"
-#include "ls1c102_ptimer.h"
-#include "ls1c102_i2c.h"
-#include "Config.h"
+#include"ls1x.h"
+#include"ls1x_gpio.h"
+#include"ls1x_wdg.h"
+#include"ls1x_common.h"
+#include"ls1x_exti.h"
+#include"ls1c102_interrupt.h"
+#include"ls1c102_touch.h"
+#include"ls1c102_ptimer.h"
+#include"ls1c102_i2c.h"
+#include"Config.h"
 #include "queue.h"
 
-
-#define	DEBUG_IRQ()  printf("\r\n < IRQ: %d func:%s   >\r\n",__LINE__,__FUNCTION__)
+#define	BEBUG_IRQ()  printf("\r\n < IRQ: %d func:%s   >\r\n",__LINE__,__FUNCTION__)
+void (* const exti_irq_handle[32])(void);
 
 void exti_gpioa0_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_A0);
 }
 void exti_gpioa1_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_A1);
 }
 void exti_gpioa2_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_A2);
 }
 void exti_gpioa3_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_A3);
 }
 void exti_gpioa4_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_A4);
 }
 void exti_gpioa5_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_A5);
 }
 void exti_gpioa6_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_A6);
 }
 void exti_gpioa7_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_A7);
 }
 void exti_gpiob0_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_B0);
 }
 void exti_gpiob1_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_B1);
 }
 void exti_gpiob2_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_B2);
 }
 void exti_gpiob3_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_B3);
 }
 void exti_gpiob4_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_B4);
 }
 void exti_gpiob5_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_B5);
 }
 void exti_gpiob6_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_B6);
 }
 void exti_gpiob7_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_B7);
 }
 
 void exti_gpioc0_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_C0);
 }
 void exti_gpioc1_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_C1);
 }
 void exti_gpioc2_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_C2);
 }
 void exti_gpioc3_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_C3);
 }
 void exti_gpioc4_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_C4);
 }
 void exti_gpioc5_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_C5);
 }
 void exti_gpioc6_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_C6);
 }
 void exti_gpioc7_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_C7);
 }
 void exti_gpiod0_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_D0);
 }
 void exti_gpiod1_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_D1);
 }
 void exti_gpiod2_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_D2);
 }
 void exti_gpiod3_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_D3);
 }
 void exti_gpiod4_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_D4);
 }
 
 void exti_gpiod5_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_D5);
 }
 void exti_gpiod6_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_D6);
 }
 void exti_gpiod7_irq_handler(void)
 {
-    DEBUG_IRQ();
+    BEBUG_IRQ();
     EXTI_ClearITPendingBit(EXTI, IRQ_GPIO_D7);
 }
+void (* const Ext_IrqHandle[32])(void) =
+{
+    exti_gpioa0_irq_handler,
+    exti_gpioa1_irq_handler,
+    exti_gpioa2_irq_handler,
+    exti_gpioa3_irq_handler,
+    exti_gpioa4_irq_handler,
+    exti_gpioa5_irq_handler,
+    exti_gpioa6_irq_handler,
+    exti_gpioa7_irq_handler,
+    exti_gpiob0_irq_handler,
+    exti_gpiob1_irq_handler,
+    exti_gpiob2_irq_handler,
+    exti_gpiob3_irq_handler,
+    exti_gpiob4_irq_handler,
+    exti_gpiob5_irq_handler,
+    exti_gpiob6_irq_handler,
+    exti_gpiob7_irq_handler,
+    exti_gpioc0_irq_handler,
+    exti_gpioc1_irq_handler,
+    exti_gpioc2_irq_handler,
+    exti_gpioc3_irq_handler,
+    exti_gpioc4_irq_handler,
+    exti_gpioc5_irq_handler,
+    exti_gpioc6_irq_handler,
+    exti_gpioc7_irq_handler,
+    exti_gpiod0_irq_handler,
+    exti_gpiod1_irq_handler,
+    exti_gpiod2_irq_handler,
+    exti_gpiod3_irq_handler,
+    exti_gpiod4_irq_handler,
+    exti_gpiod5_irq_handler,
+    exti_gpiod6_irq_handler,
+    exti_gpiod7_irq_handler,
+};
 
 void ext_handler(void)
 {
@@ -228,15 +263,13 @@ void TIMER_8M_INT(void)
  ***********************************************************************/
 void TIMER_WAKE_INT(void)
 {
-    printf("TIMER_WAKE_INT feed WDG!\n\r");
+    //printf("\n.............TIMER_WAKE_INT..............\n\r");
     PMU_CMDW = (1 << 16); // 清除中断标志
     INT32U SleepEn = PMU_CMDSTS & 0xffffffff;
     WDG_DogFeed();
     (void)SleepEn;
     //睡眠后，定时喂狗，否则会不断重启
-    Wake_Set(6);        //定时唤醒喂狗
 }
-
 /***********************************************************************
  函数功能:    	触摸按键中断处理函数
  @param:	无
@@ -290,7 +323,7 @@ void BAT_FAIL(void)
     switch(tmp)
     {
         case 0x1:
-            printf("\r\n.............BAT_FAIL..............\r\n");
+            printf("\n.............BAT_FAIL..............\n\r");
             PMU_CMDSTS  =   0x0;   // IT config
             break;
         case 0x2:
@@ -300,20 +333,12 @@ void BAT_FAIL(void)
         case 0x8:
             break;
         case 0x10:
-            printf("\r\n.............ADC..............\r\n");
+            printf("\n.............ADC..............\n\r");
             PMU_CMDSTS  &=   (~0x8000);   // IT dis
             break;
         default:
             break;
     }
-}
-
-void INTC(void)
-{
-}
-
-void RING(void)
-{
 }
 
 /***********************************************************************
@@ -326,47 +351,33 @@ void RING(void)
  ***********************************************************************/
 void intc_handler(void)
 {
-    static uint8_t receive_Data;
+
     INT8U IntReg = INT_OUT;
 
     if(IntReg  & IRQ_TIMER)//Timer
     {
-        if (TIM_GetITStatus(TIM_FLAG_Trigger))
-        {   
+        if(TIM_GetITStatus(TIM_FLAG_Trigger))
+        {
             TIM_ClearIT(TIM_FLAG_Trigger);
+            printf("Peripherals Timer clear interrupt..\n");
         }
     }
-    if (IntReg & UART1_INT_OUT) // Uart1
+    if (IntReg & UART1_INT_OUT) //Uart1
     {
-        if(UART1_IIR&0x04)
-        {
-            while(UART1_LSR&0x1)
-            {
-                receive_Data=UART_ReceiveData(UART1);//接收数据
-                Queue_Write(&Circular_queue, (uint8_t *)&receive_Data, 1);//向队列中写入数据，修正拼写错误
-            }
-        }
         INT_CLR = UART1_INT_CLR;
     }
     if (IntReg & UART0_INT_OUT) //Uart0
     {
-        if(UART0_IIR&0x04)
-        {
-            while(UART0_LSR&0x1)
-            {
-                receive_Data=UART_ReceiveData(UART0);//接收数据
-                Queue_Write(&Circular_queue, (uint8_t *)&receive_Data, 1);//向队列中写入数据，修正拼写错误
-            }
-        }
         INT_CLR = UART0_INT_CLR;
     }
+
     INT_CLR = 0xff;
 }
+
 
 void TIMER_HANDLER(void)
 {
     Set_Timer_clear();
-    printf("Core Timer clear interrupt..\r\n");
+    printf("Core Timer clear interrupt..\n");
     Set_Timer_stop();
 }
-

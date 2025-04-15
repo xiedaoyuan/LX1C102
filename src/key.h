@@ -7,6 +7,7 @@
 #define KEY2 GPIO_PIN_23
 #define KEY3 GPIO_PIN_24
 #define KEY4 GPIO_PIN_25
+#define KEY5 GPIO_PIN_26
 
 void KEY_Init(void);
 uint8_t KEY_Scan(void);

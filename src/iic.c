@@ -15,11 +15,11 @@ void IIC_Delay(void)
 // 初始化IIC
 void IIC_Init(void)
 { 
-	gpio_pin_remap(GPIO_PIN_1, GPIO_FUNC_GPIO);
-	gpio_pin_remap(GPIO_PIN_57, GPIO_FUNC_GPIO);
+	gpio_pin_remap(GPIO_PIN_4, GPIO_FUNC_GPIO);
+	gpio_pin_remap(GPIO_PIN_5, GPIO_FUNC_GPIO);
 
-	gpio_set_direction(GPIO_PIN_1, GPIO_Mode_Out);  
-	gpio_set_direction(GPIO_PIN_57, GPIO_Mode_Out); 
+	gpio_set_direction(GPIO_PIN_4, GPIO_Mode_Out);  
+	gpio_set_direction(GPIO_PIN_5, GPIO_Mode_Out); 
 
 	// 初始上拉，I2C默认空闲状态
 	I2C_SCL_HIGH;

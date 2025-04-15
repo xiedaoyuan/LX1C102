@@ -4,6 +4,7 @@
 void FAN_Init(void)
 {
 gpio_set_direction(FAN,GPIO_Mode_Out);  //设置引脚为输出
+gpio_write_pin(FAN,1);
 }
 
 void FAN_Ctrl(uint8_t sta)

@@ -133,8 +133,7 @@ uint8_t DHT11_Read_Data(uint16_t *temp,uint16_t *humi)
 // 返回0:存在
 uint8_t DHT11_Init(void)
 {
-	// AFIO_RemapConfig(AFIOA, GPIO_Pin_4, GPIO_FUNC_GPIO);
-	gpio_pin_remap(GPIO_PIN_4, GPIO_FUNC_GPIO);
+	gpio_pin_remap(GPIO_PIN_17, GPIO_FUNC_GPIO);
 	DHT11_IO_Out();
 	DHT11_Rst();
 	return DHT11_Check();
