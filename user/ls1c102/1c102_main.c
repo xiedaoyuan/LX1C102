@@ -34,13 +34,15 @@ uint8_t send_humi_flag;
 char str[30];
 char temp_str[30];
 char humi_str[30];
+char temp_threshold_str[30];
+char humi_threshold_str[30];
 int main(int arg, char *args[])
 {    
      SystemClockInit();
      GPIOInit();
     //  RGB_LED_Init();
      LED_Init();
-    //  KEY_Init();
+     KEY_Init();
     //  BEEP_Init();
      OLED_Init();   
     //  FAN_Init();
@@ -57,34 +59,25 @@ int main(int arg, char *args[])
 
         temp /= 10;
         humi /= 10;
-
-        // sprintf(str,"TEMP: %2d℃",temp);
-        // OLED_Show_Str(10,0,str,16);
-
-        // sprintf(str,"HUMI: %2d%%RH",humi);
-        // OLED_Show_Str(10,2,str,16);
-
-        // sprintf(str,"TEMP_WARN: %2d℃",temp_threshold);
-        // OLED_Show_Str(0,4,str,16);
-
-        // sprintf(str,"HUMI_WARN: %2d%%RH",humi_threshold);
-        // OLED_Show_Str(0,6,str,16);
-        sprintf(temp_str,"TEMP: %2d℃",temp);
-        OLED_Show_Str(0,0,temp_str,8);
-        sprintf(humi_str,"HUMI: %2d%%RH",humi);
-        OLED_Show_Str(0,2,humi_str,8);
+        sprintf(temp_str,"TEMP:%2d℃",temp);
+        OLED_Show_Str(4,0,temp_str,8);
+        sprintf(humi_str,"HUMI:%2d%%RH",humi);
+        OLED_Show_Str(4,2,humi_str,8);
+        sprintf(temp_threshold_str,"TEMP_WARN:%2d℃",temp_threshold);
+        OLED_Show_Str(4,4,temp_threshold_str,16);
+        sprintf(humi_threshold_str,"HUMI_WARN:%2d%%RH",humi_threshold);
+        OLED_Show_Str(4,6,humi_threshold_str,16);
     //     MQTT_UP_DATA[2] = temp;
     //     MQTT_UP_DATA[3] = humi;
     //     UART_SendDataALL(UART1, MQTT_UP_DATA, 8);
-
-    //     if(KEY_Scan()==1)
-    //     temp_threshold+=1;
-    //     if(KEY_Scan()==2)
-    //     temp_threshold-=1;
-    //     if(KEY_Scan()==3)
-    //     humi_threshold+=5;
-    //     if(KEY_Scan()==4)
-    //     humi_threshold-=5;
+        if(KEY_Scan()==1)
+        temp_threshold+=1;
+        if(KEY_Scan()==2)
+        temp_threshold-=1;
+        if(KEY_Scan()==3)
+        humi_threshold+=5;
+        if(KEY_Scan()==4)
+        humi_threshold-=5;
 
     //     if(temp>temp_threshold)
     //     {
@@ -125,7 +118,6 @@ int main(int arg, char *args[])
     //         send_humi_flag=0;
     //     }
     // }
-    // OLED_Show_Str(0,0,"HELLO WORLD",8);
-    return 0;
     }
+    return 0;
 }
