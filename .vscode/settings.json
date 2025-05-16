@@ -36,6 +36,15 @@
         "ls1c103_map.h": "c",
         "ls1c103_dcm_tim.h": "c",
         "ls1c103_i2cregs.h": "c",
-        "fumes.h": "c"
+        "fumes.h": "c",
+        "yuyin.h": "c",
+        "math.h": "c",
+        "ls1c103_adc.h": "c",
+        "ls1c103_dma.h": "c",
+        "ls1c103_tim.h": "c",
+        "foc_tim.h": "c",
+        "stdlib.h": "c",
+        "string.h": "c",
+        "ls1c102_interrupt.h": "c"
     }
 }

@@ -55,7 +55,7 @@ void Smoke_Init(void)
         // 找到相似值，跳出 while(1) 循环
         if (found)
         {
-            OLED_Show_Str(65, 4, "456", 16);              // OLED显示字符串
+            // OLED_Show_Str(65, 4, "456", 16);              // OLED显示字符串
             break;
         }
         else

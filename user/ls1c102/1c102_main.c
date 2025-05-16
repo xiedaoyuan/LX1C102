@@ -15,15 +15,19 @@
 #include "fan.h"
 #include "queue.h"
 #include "ls1c102_adc.h"
+#include "yuyin.h"
+#include "fumes.h"
 
 uint8_t received_data=0;
 uint16_t temp,humi;
+uint16_t smoke;
 uint16_t temp_warn=0x13;
 uint16_t humi_warn=0x14;
 uint8_t FAN_FLAG;
 uint8_t ADC_Value;
-uint8_t temp_threshold = 30;
-uint8_t humi_threshold = 65;
+uint8_t temp_threshold = 60;
+uint8_t humi_threshold = 30;
+uint8_t smoke_threshold = 10;
 uint8_t SEND_DATA[4]={0xF4,0xF5,0x00,0xFB};
 uint8_t First[6]={0x7E,0x04,0x03,0x00,0X01,0xEF};
 uint8_t Read_Buffer[255];
@@ -31,93 +35,175 @@ uint8_t Read_length;
 uint8_t MQTT_UP_DATA[8]={0x55,0xAA,0x00,0x00,0x00,0x00,0x00,0xBB};
 uint8_t send_temp_flag;
 uint8_t send_humi_flag;
+uint8_t current_interface = 0;
+uint8_t abnormal_count = 0;
 char str[30];
-char temp_str[30];
-char humi_str[30];
-char temp_threshold_str[30];
-char humi_threshold_str[30];
 int main(int arg, char *args[])
 {    
      SystemClockInit();
      GPIOInit();
-    //  RGB_LED_Init();
+     RGB_LED_Init();
      LED_Init();
      KEY_Init();
-    //  BEEP_Init();
+     BEEP_Init();
      OLED_Init();   
-    //  FAN_Init();
+     FAN_Init();
      EnableInt();
-    //  Queue_Init(&Circular_queue);
-    //  Uart0_init(9600);
-    //  Uart1_init(9600);
+     Smoke_Init();
+     Queue_Init(&Circular_queue);
+     Uart1_init(9600);
      Adc_powerOn();
      Adc_open(ADC_CHANNEL_I6);
+     YUYIN_Init();
     while(DHT11_Init());
     while (1)
-    {
+    {   
         DHT11_Read_Data(&temp,&humi);
-
+        Smoke_Read_Data(&smoke);
         temp /= 10;
         humi /= 10;
-        sprintf(temp_str,"TEMP:%2d℃",temp);
-        OLED_Show_Str(4,0,temp_str,8);
-        sprintf(humi_str,"HUMI:%2d%%RH",humi);
-        OLED_Show_Str(4,2,humi_str,8);
-        sprintf(temp_threshold_str,"TEMP_WARN:%2d℃",temp_threshold);
-        OLED_Show_Str(4,4,temp_threshold_str,16);
-        sprintf(humi_threshold_str,"HUMI_WARN:%2d%%RH",humi_threshold);
-        OLED_Show_Str(4,6,humi_threshold_str,16);
-    //     MQTT_UP_DATA[2] = temp;
-    //     MQTT_UP_DATA[3] = humi;
-    //     UART_SendDataALL(UART1, MQTT_UP_DATA, 8);
+        if(current_interface == 0) {
+        OLED_Clear();
+        OLED_Show_Str(35,0,"CURRENT",8);
+        sprintf(str,"TEMP:%2d℃",temp);
+        OLED_Show_Str(4,2,str,8);
+        sprintf(str,"HUMI:%2d%%RH",humi);
+        OLED_Show_Str(4,4,str,8);
+        sprintf(str,"SMOKE:%2dppm",smoke);
+        OLED_Show_Str(4,6,str,8);}
+        else{  
+            OLED_Clear();
+            OLED_Show_Str(45,0,"WARN",8);
+            sprintf(str,"TempSet:%2d℃",temp_threshold);
+            OLED_Show_Str(2,2,str,8);
+            sprintf(str,"HumiSet:%2d%%RH",humi_threshold);
+            OLED_Show_Str(2,4,str,8);
+            sprintf(str,"SmokeSet:%2dppm",smoke_threshold);
+            OLED_Show_Str(2,6,str,8);
+        }
+        if(temp > temp_threshold) abnormal_count++;
+        if(humi < humi_threshold) abnormal_count++;
+        if(smoke > smoke_threshold) abnormal_count++;
+        if(abnormal_count == 0) {
+            // 无异常，绿灯
+            GREEN_CTRL(1);
+            RED_CTRL(0);
+            LED1_OFF;
+        } else if(abnormal_count == 1) {
+            // 单数据或双数据异常，黄灯（红+绿）
+            RED_CTRL(1);
+            GREEN_CTRL(1);
+            LED1_ON;
+        } else if(abnormal_count == 2||abnormal_count == 3) {
+            // 三数据异常，红灯
+            RED_CTRL(1);
+            GREEN_CTRL(0);
+            LED1_ON;
+            YUYIN_Ctrl(4);
+        }else if(abnormal_count ==3){
+            BEEP_on(1);
+            delay_ms(500);
+            BEEP_on(0);
+            YUYIN_Ctrl(4);
+        }
+        if (temp > temp_threshold)
+        {
+            FAN_CTRL(0);
+        }
+        
+        if(temp>=temp_threshold && humi>=humi_threshold && smoke<=smoke_threshold)
+        {
+            FAN_CTRL(0);
+            YUYIN_Ctrl(1);
+        }
+        if(temp<temp_threshold)
+        {
+            FAN_CTRL(1);
+            BEEP_on(0);
+        }
+        if(humi<=humi_threshold && temp<=temp_threshold && smoke<=smoke_threshold)
+        {
+            LED1_ON;
+            YUYIN_Ctrl(2);
+        }
+        if(humi>humi_threshold)
+        {
+            BEEP_on(0);
+        }
+        if (smoke > smoke_threshold)
+        {
+            FAN_CTRL(0);
+        }
+        
+        if(smoke>=smoke_threshold && temp<=temp_threshold && humi>=humi_threshold)
+        {
+            LED1_ON;
+            YUYIN_Ctrl(3);
+        }
+        if(smoke<smoke_threshold)
+        {
+            BEEP_on(0);
+        }
+        if(temp <= temp_threshold && humi >= humi_threshold && smoke <= smoke_threshold)
+        {
+            BEEP_on(0);
+            GREEN_CTRL(1);
+            RED_CTRL(0);
+            LED1_OFF;
+        }
+        MQTT_UP_DATA[2] = temp;
+        MQTT_UP_DATA[3] = humi;
+        MQTT_UP_DATA[4] = smoke;
+        // UART_SendDataALL(UART1, MQTT_UP_DATA, 8);
+        Uart1_send(MQTT_UP_DATA);
+        printf("MQTT_UP_DATA: ");
+        for(int i = 0; i < 8; i++) {
+            printf("%d ", MQTT_UP_DATA[i]);
+        }
+        printf("\n");
         if(KEY_Scan()==1)
-        temp_threshold+=1;
-        if(KEY_Scan()==2)
-        temp_threshold-=1;
-        if(KEY_Scan()==3)
-        humi_threshold+=5;
-        if(KEY_Scan()==4)
-        humi_threshold-=5;
-
-    //     if(temp>temp_threshold)
-    //     {
-    //         BEEP_on(1);
-    //         FAN_Ctrl(3);
-    //         RED_CTRL(1);
-    //         SEND_DATA[2]=temp_warn;
-    //         send_temp_flag++;
-    //         if(send_temp_flag>=3)
-    //         {
-    //         UART_SendDataALL(UART0,SEND_DATA,4);
-    //         send_temp_flag=0;
-    //         }
-    //     }
-    //     else
-    //     {
-    //         FAN_Ctrl(4);
-    //         RED_CTRL(0);
-    //         BEEP_on(0);
-    //         send_temp_flag=0;
-    //     }
-    //     if(humi>humi_threshold)
-    //     {
-    //         BEEP_on(1);
-    //         BLUE_CTRL(1);
-    //         SEND_DATA[2]=humi_warn;
-    //         BEEP_on(0);
-    //         send_humi_flag++;
-    //         if(send_humi_flag>=3)
-    //         {
-    //         UART_SendDataALL(UART0,SEND_DATA,4);
-    //         send_humi_flag=0;
-    //         }
-    //     }
-    //     else
-    //     {
-    //         BLUE_CTRL(0);
-    //         send_humi_flag=0;
-    //     }
-    // }
+        {
+            current_interface = !current_interface;
+        }
+        
+        // if(temp>temp_threshold)
+        // {
+        //     // BEEP_on(1);
+        //     // FAN_Ctrl(3);
+        //     RED_CTRL(1);
+        //     // SEND_DATA[2]=temp_warn;
+        //     // send_temp_flag++;
+        //     // if(send_temp_flag>=3)
+        //     // {
+        //     // UART_SendDataALL(UART0,SEND_DATA,4);
+        //     // send_temp_flag=0;
+        //     // }
+        // }
+        // else
+        // {
+        //     // FAN_Ctrl(4);
+        //     RED_CTRL(0);
+        //     // BEEP_on(0);
+        //     // send_temp_flag=0;
+        // }
+        // if(humi>humi_threshold)
+        // {
+        //     // BEEP_on(1);
+        //     BLUE_CTRL(1);
+        //     // SEND_DATA[2]=humi_warn;
+        //     // BEEP_on(0);
+        //     // send_humi_flag++;
+        //     // if(send_humi_flag>=3)
+        //     // {
+        //     // UART_SendDataALL(UART0,SEND_DATA,4);
+        //     // send_humi_flag=0;
+        //     // }
+        // }
+        // else
+        // {
+        //     BLUE_CTRL(0);
+        //     // send_humi_flag=0;
+        // }
     }
     return 0;
 }

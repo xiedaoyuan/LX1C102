@@ -446,7 +446,7 @@ void Uart1_init(uint32_t baud)
     //        INT_POL |= 0x04;
     //        INT_EN |= 0x04;
 
-    UART_ITConfig(UART1, UART_IT_IRE, !ENABLE);
+    UART_ITConfig(UART1, UART_IT_IRE, ENABLE);
 }
 
 void Uart2_init(uint32_t baud)

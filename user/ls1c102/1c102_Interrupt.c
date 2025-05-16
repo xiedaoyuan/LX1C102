@@ -1,14 +1,14 @@
-#include"ls1x.h"
-#include"ls1x_gpio.h"
-#include"ls1x_wdg.h"
-#include"ls1x_common.h"
-#include"ls1x_exti.h"
-#include"ls1c102_interrupt.h"
-#include"ls1c102_touch.h"
-#include"ls1c102_ptimer.h"
-#include"ls1c102_i2c.h"
-#include"Config.h"
-#include "queue.h"
+#include "ls1x.h"
+#include "ls1x_gpio.h"
+#include "ls1x_wdg.h"
+#include "ls1x_common.h"
+#include "ls1x_exti.h"
+#include "ls1c102_interrupt.h"
+#include "ls1c102_touch.h"
+#include "ls1c102_ptimer.h"
+#include "ls1c102_i2c.h"
+#include "Config.h"
+
 
 #define	BEBUG_IRQ()  printf("\r\n < IRQ: %d func:%s   >\r\n",__LINE__,__FUNCTION__)
 void (* const exti_irq_handle[32])(void);
@@ -263,13 +263,15 @@ void TIMER_8M_INT(void)
  ***********************************************************************/
 void TIMER_WAKE_INT(void)
 {
-    //printf("\n.............TIMER_WAKE_INT..............\n\r");
+    printf("TIMER_WAKE_INT feed WDG!\n\r");
     PMU_CMDW = (1 << 16); // 清除中断标志
     INT32U SleepEn = PMU_CMDSTS & 0xffffffff;
     WDG_DogFeed();
     (void)SleepEn;
     //睡眠后，定时喂狗，否则会不断重启
+    Wake_Set(6);        //定时唤醒喂狗
 }
+
 /***********************************************************************
  函数功能:    	触摸按键中断处理函数
  @param:	无
@@ -323,7 +325,7 @@ void BAT_FAIL(void)
     switch(tmp)
     {
         case 0x1:
-            printf("\n.............BAT_FAIL..............\n\r");
+            printf("\r\n.............BAT_FAIL..............\r\n");
             PMU_CMDSTS  =   0x0;   // IT config
             break;
         case 0x2:
@@ -333,12 +335,20 @@ void BAT_FAIL(void)
         case 0x8:
             break;
         case 0x10:
-            printf("\n.............ADC..............\n\r");
+            printf("\r\n.............ADC..............\r\n");
             PMU_CMDSTS  &=   (~0x8000);   // IT dis
             break;
         default:
             break;
     }
+}
+
+void INTC(void)
+{
+}
+
+void RING(void)
+{
 }
 
 /***********************************************************************
@@ -359,7 +369,7 @@ void intc_handler(void)
         if(TIM_GetITStatus(TIM_FLAG_Trigger))
         {
             TIM_ClearIT(TIM_FLAG_Trigger);
-            printf("Peripherals Timer clear interrupt..\n");
+            printf("Peripherals Timer clear interrupt..\r\n");
         }
     }
     if (IntReg & UART1_INT_OUT) //Uart1
@@ -378,6 +388,7 @@ void intc_handler(void)
 void TIMER_HANDLER(void)
 {
     Set_Timer_clear();
-    printf("Core Timer clear interrupt..\n");
+    printf("Core Timer clear interrupt..\r\n");
     Set_Timer_stop();
 }
+
