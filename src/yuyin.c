@@ -43,4 +43,11 @@ void YUYIN_Ctrl(uint8_t flag)
         gpio_write_pin(YUYIN_PIN_3, 1); 
         gpio_write_pin(YUYIN_PIN_4, 0);
     }
+    if(flag==5)
+    {
+        gpio_write_pin(YUYIN_PIN_1, 1);
+        gpio_write_pin(YUYIN_PIN_2, 1);
+        gpio_write_pin(YUYIN_PIN_3, 1); 
+        gpio_write_pin(YUYIN_PIN_4, 1);
+    }
 }

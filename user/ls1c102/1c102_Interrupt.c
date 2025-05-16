@@ -263,7 +263,7 @@ void TIMER_8M_INT(void)
  ***********************************************************************/
 void TIMER_WAKE_INT(void)
 {
-    printf("TIMER_WAKE_INT feed WDG!\n\r");
+//     printf("TIMER_WAKE_INT feed WDG!\n\r");
     PMU_CMDW = (1 << 16); // 清除中断标志
     INT32U SleepEn = PMU_CMDSTS & 0xffffffff;
     WDG_DogFeed();

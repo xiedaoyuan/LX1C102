@@ -38,6 +38,8 @@ uint8_t send_humi_flag;
 uint8_t current_interface = 0;
 uint8_t abnormal_count = 0;
 char str[30];
+static uint8_t last_temp = 0, last_humi = 0, last_smoke = 0;
+static uint8_t first_run = 1; // 首次运行标志
 int main(int arg, char *args[])
 {    
      SystemClockInit();
@@ -62,33 +64,65 @@ int main(int arg, char *args[])
         Smoke_Read_Data(&smoke);
         temp /= 10;
         humi /= 10;
-        if(current_interface == 0) {
-        OLED_Clear();
-        OLED_Show_Str(35,0,"CURRENT",8);
-        sprintf(str,"TEMP:%2d℃",temp);
-        OLED_Show_Str(4,2,str,8);
-        sprintf(str,"HUMI:%2d%%RH",humi);
-        OLED_Show_Str(4,4,str,8);
-        sprintf(str,"SMOKE:%2dppm",smoke);
-        OLED_Show_Str(4,6,str,8);}
-        else{  
-            OLED_Clear();
-            OLED_Show_Str(45,0,"WARN",8);
-            sprintf(str,"TempSet:%2d℃",temp_threshold);
-            OLED_Show_Str(2,2,str,8);
-            sprintf(str,"HumiSet:%2d%%RH",humi_threshold);
-            OLED_Show_Str(2,4,str,8);
-            sprintf(str,"SmokeSet:%2dppm",smoke_threshold);
-            OLED_Show_Str(2,6,str,8);
+        printf("TEMP: %d, HUMI: %d, SMOKE: %d\n", temp, humi, smoke);
+        abnormal_count = 0;
+      if (first_run) {
+        OLED_Clear(); // 仅首次清屏
+        OLED_Show_Str(35, 0, "CURRENT", 8); // 显示标题
+        
+        // 显示初始数据
+        sprintf(str, "TEMP:%2d℃", temp);
+        OLED_Show_Str(4, 2, str, 8);
+        
+        sprintf(str, "HUMI:%2d%%RH", humi);
+        OLED_Show_Str(4, 4, str, 8);
+        
+        sprintf(str, "SMOKE:%2dppm", smoke);
+        OLED_Show_Str(4, 6, str, 8);
+        
+        // 初始化历史数据
+        last_temp = temp;
+        last_humi = humi;
+        last_smoke = smoke;
+        first_run = 0;
+    } 
+    else {
+        // ====================== 温度显示更新 ======================
+        if (temp != last_temp) {
+            // 清除旧温度显示区域
+            OLED_Show_Str(4, 2, "                ", 8);
+            // 显示新温度
+            sprintf(str, "TEMP:%2d℃", temp);
+            OLED_Show_Str(4, 2, str, 8);
+            last_temp = temp;
         }
-        if(temp > temp_threshold) abnormal_count++;
-        if(humi < humi_threshold) abnormal_count++;
-        if(smoke > smoke_threshold) abnormal_count++;
+
+        // ====================== 湿度显示更新 ======================
+        if (humi != last_humi) {
+            OLED_Show_Str(4, 4, "                ", 8);
+            sprintf(str, "HUMI:%2d%%RH", humi);
+            OLED_Show_Str(4, 4, str, 8);
+            last_humi = humi;
+        }
+
+        // ====================== 烟雾显示更新 ======================
+        if (smoke != last_smoke) {
+            OLED_Show_Str(4, 6, "                ", 8);
+            sprintf(str, "SMOKE:%2dppm", smoke);
+            OLED_Show_Str(4, 6, str, 8);
+            last_smoke = smoke;
+        }
+    }
+    if(temp > temp_threshold) abnormal_count++;
+    if(humi < humi_threshold) abnormal_count++;
+    if(smoke > smoke_threshold) abnormal_count++;
+
         if(abnormal_count == 0) {
             // 无异常，绿灯
             GREEN_CTRL(1);
             RED_CTRL(0);
             LED1_OFF;
+            YUYIN_Ctrl(5);
         } else if(abnormal_count == 1) {
             // 单数据或双数据异常，黄灯（红+绿）
             RED_CTRL(1);
@@ -102,8 +136,6 @@ int main(int arg, char *args[])
             YUYIN_Ctrl(4);
         }else if(abnormal_count ==3){
             BEEP_on(1);
-            delay_ms(500);
-            BEEP_on(0);
             YUYIN_Ctrl(4);
         }
         if (temp > temp_threshold)
@@ -161,49 +193,6 @@ int main(int arg, char *args[])
             printf("%d ", MQTT_UP_DATA[i]);
         }
         printf("\n");
-        if(KEY_Scan()==1)
-        {
-            current_interface = !current_interface;
-        }
-        
-        // if(temp>temp_threshold)
-        // {
-        //     // BEEP_on(1);
-        //     // FAN_Ctrl(3);
-        //     RED_CTRL(1);
-        //     // SEND_DATA[2]=temp_warn;
-        //     // send_temp_flag++;
-        //     // if(send_temp_flag>=3)
-        //     // {
-        //     // UART_SendDataALL(UART0,SEND_DATA,4);
-        //     // send_temp_flag=0;
-        //     // }
-        // }
-        // else
-        // {
-        //     // FAN_Ctrl(4);
-        //     RED_CTRL(0);
-        //     // BEEP_on(0);
-        //     // send_temp_flag=0;
-        // }
-        // if(humi>humi_threshold)
-        // {
-        //     // BEEP_on(1);
-        //     BLUE_CTRL(1);
-        //     // SEND_DATA[2]=humi_warn;
-        //     // BEEP_on(0);
-        //     // send_humi_flag++;
-        //     // if(send_humi_flag>=3)
-        //     // {
-        //     // UART_SendDataALL(UART0,SEND_DATA,4);
-        //     // send_humi_flag=0;
-        //     // }
-        // }
-        // else
-        // {
-        //     BLUE_CTRL(0);
-        //     // send_humi_flag=0;
-        // }
     }
     return 0;
 }
