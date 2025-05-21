@@ -29,10 +29,8 @@ uint8_t temp_threshold = 60;
 uint8_t humi_threshold = 30;
 uint8_t smoke_threshold = 10;
 uint8_t SEND_DATA[4]={0xF4,0xF5,0x00,0xFB};
-uint8_t First[6]={0x7E,0x04,0x03,0x00,0X01,0xEF};
 uint8_t Read_Buffer[255];
 uint8_t Read_length;
-uint8_t MQTT_UP_DATA[8]={0x55,0xAA,0x00,0x00,0x00,0x00,0x00,0xBB};
 uint8_t send_temp_flag;
 uint8_t send_humi_flag;
 uint8_t current_interface = 0;
@@ -53,10 +51,12 @@ int main(int arg, char *args[])
      EnableInt();
      Smoke_Init();
      Queue_Init(&Circular_queue);
-     Uart1_init(9600);
+     Uart1_init(115200);
+     Uart0_init(115200);
      Adc_powerOn();
      Adc_open(ADC_CHANNEL_I6);
      YUYIN_Init();
+     ESP8266_Init();
     while(DHT11_Init());
     while (1)
     {   
@@ -64,7 +64,7 @@ int main(int arg, char *args[])
         Smoke_Read_Data(&smoke);
         temp /= 10;
         humi /= 10;
-        printf("TEMP: %d, HUMI: %d, SMOKE: %d\n", temp, humi, smoke);
+        printf("TEMP: %d, HUMI: %d%%RH, SMOKE: %dppm\n", temp, humi, smoke);
         abnormal_count = 0;
       if (first_run) {
         OLED_Clear(); // 仅首次清屏
@@ -183,16 +183,6 @@ int main(int arg, char *args[])
             RED_CTRL(0);
             LED1_OFF;
         }
-        MQTT_UP_DATA[2] = temp;
-        MQTT_UP_DATA[3] = humi;
-        MQTT_UP_DATA[4] = smoke;
-        // UART_SendDataALL(UART1, MQTT_UP_DATA, 8);
-        Uart1_send(MQTT_UP_DATA);
-        printf("MQTT_UP_DATA: ");
-        for(int i = 0; i < 8; i++) {
-            printf("%d ", MQTT_UP_DATA[i]);
-        }
-        printf("\n");
     }
     return 0;
 }

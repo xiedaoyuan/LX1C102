@@ -45,6 +45,7 @@
         "foc_tim.h": "c",
         "stdlib.h": "c",
         "string.h": "c",
-        "ls1c102_interrupt.h": "c"
+        "ls1c102_interrupt.h": "c",
+        "esp8266.h": "c"
     }
 }
