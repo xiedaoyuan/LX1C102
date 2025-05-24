@@ -26,7 +26,7 @@ uint16_t humi_warn=0x14;
 uint8_t FAN_FLAG;
 uint8_t ADC_Value;
 uint8_t temp_threshold = 60;
-uint8_t humi_threshold = 30;
+uint8_t humi_threshold = 15;
 uint8_t smoke_threshold = 10;
 uint8_t SEND_DATA[4]={0xF4,0xF5,0x00,0xFB};
 uint8_t Read_Buffer[255];
@@ -38,6 +38,30 @@ uint8_t abnormal_count = 0;
 char str[30];
 static uint8_t last_temp = 0, last_humi = 0, last_smoke = 0;
 static uint8_t first_run = 1; // 首次运行标志
+void ProcessUartCommand(uint8_t *data, uint8_t length)
+{
+    // 添加调试信息
+    printf("Received command: ");
+    for(int i = 0; i < length; i++) {
+        printf("%c", data[i]);
+    }
+    printf("\n");
+
+    // 命令格式：TxxHxxSxx (T:温度, H:湿度, S:烟雾)
+    if (length == 9 && data[0] == 'T' && data[3] == 'H' && data[6] == 'S') {
+        uint8_t new_temp = (data[1] - '0') * 10 + (data[2] - '0');
+        uint8_t new_humi = (data[4] - '0') * 10 + (data[5] - '0');
+        uint8_t new_smoke = (data[7] - '0') * 10 + (data[8] - '0');
+        
+        if (new_temp > 0 && new_temp <= 99) temp_threshold = new_temp;
+        if (new_humi > 0 && new_humi <= 99) humi_threshold = new_humi;
+        if (new_smoke > 0 && new_smoke <= 99) smoke_threshold = new_smoke;
+        
+        printf("New thresholds set: T=%d, H=%d, S=%d\n", temp_threshold, humi_threshold, smoke_threshold);
+    } else {
+        printf("Invalid command format!\n");
+    }
+}
 int main(int arg, char *args[])
 {    
      SystemClockInit();
@@ -56,10 +80,31 @@ int main(int arg, char *args[])
      Adc_powerOn();
      Adc_open(ADC_CHANNEL_I6);
      YUYIN_Init();
-     ESP8266_Init();
+    //  ESP8266_Init();
     while(DHT11_Init());
     while (1)
     {   
+        if (UART_GetFlagStatus(UART1, UART_LSR_FLAG_RXNE)) {
+            uint8_t buffer[10];
+            uint8_t len = 0;
+            
+            // 等待完整命令接收（最多等待100ms）
+            uint32_t timeout = 100; // 100ms超时
+            while (len < 9 && timeout > 0) {
+                if (UART_GetFlagStatus(UART1, UART_LSR_FLAG_RXNE)) {
+                    buffer[len++] = UART_ReceiveData(UART1);
+                }
+                delay_ms(1);
+                timeout--;
+            }
+            
+            // 如果接收到完整命令
+            if (len == 9) {
+                ProcessUartCommand(buffer, len);
+            } else {
+                printf("Command incomplete or timeout!\n");
+            }
+        }
         DHT11_Read_Data(&temp,&humi);
         Smoke_Read_Data(&smoke);
         temp /= 10;
