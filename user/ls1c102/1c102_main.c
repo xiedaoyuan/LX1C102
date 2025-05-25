@@ -63,23 +63,22 @@ void ProcessUartCommand(uint8_t *data, uint8_t length)
     }
 }
 int main(int arg, char *args[])
-{    
-     SystemClockInit();
-     GPIOInit();
-     RGB_LED_Init();
-     LED_Init();
-     KEY_Init();
-     BEEP_Init();
-     OLED_Init();   
-     FAN_Init();
-     EnableInt();
-     Smoke_Init();
-     Queue_Init(&Circular_queue);
-     Uart1_init(115200);
-     Uart0_init(115200);
-     Adc_powerOn();
-     Adc_open(ADC_CHANNEL_I6);
-     YUYIN_Init();
+{
+    SystemClockInit();
+    GPIOInit();
+    RGB_LED_Init();
+    LED_Init();
+    KEY_Init();
+    BEEP_Init();
+    OLED_Init();
+    FAN_Init();
+    EnableInt();
+    Smoke_Init();
+    Queue_Init(&Circular_queue);
+    Uart1_init(115200);
+    Adc_powerOn();
+    Adc_open(ADC_CHANNEL_I6);
+    YUYIN_Init();
     //  ESP8266_Init();
     while(DHT11_Init());
     while (1)
